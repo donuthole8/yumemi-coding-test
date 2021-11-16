@@ -1,65 +1,40 @@
 <script>
-import { Bar } from 'vue-chartjs'
+import { baseUrl, apiKey } from '@/assets/config.js'
+import { Line } from 'vue-chartjs'
+import axios from 'axios'
 
 export default {
-  extends: Bar,
-  name: 'Chart',
+  extends: Line,
   data () {
     return {
-      data: {
-        labels: ['January', 'February', 'March', 'April', 'May', 'June'],
-        datasets: [
-          {
-            label: 'Bar Dataset',
-            data: [10, 20, 30, 40, 50, 30],
-            backgroundColor: [
-              'rgba(255, 99, 132, 0.2)',
-              'rgba(54, 162, 235, 0.2)',
-              'rgba(255, 206, 86, 0.2)',
-              'rgba(75, 192, 192, 0.2)',
-              'rgba(153, 102, 255, 0.2)',
-              'rgba(255, 159, 64, 0.2)'
-            ],
-            borderColor: [
-              'rgba(255, 99, 132, 1)',
-              'rgba(54, 162, 235, 1)',
-              'rgba(255, 206, 86, 1)',
-              'rgba(75, 192, 192, 1)',
-              'rgba(153, 102, 255, 1)',
-              'rgba(255, 159, 64, 1)'
-            ],
-            borderWidth: 1
-          },
-          {
-            label: 'Line Dataset',
-            data: [10, 50, 20, 30, 30, 40],
-            borderColor: '#CFD8DC',
-            fill: false,
-            type: 'line',
-            lineTension: 0.3
-          }
-        ]
-      },
-      options: {
-        scales: {
-          xAxes: [{
-            scaleLabel: {
-              display: true,
-              labelString: 'Month'
-            }
-          }],
-          yAxes: [{
-            ticks: {
-              beginAtZero: true,
-              stepSize: 10
-            }
-          }]
-        }
-      }
+      prefCode: 22,
+      people: []
     }
   },
-  mounted () {
-    this.renderChart(this.data, this.options)
+  async mounted () {
+    // 都道府県名取得
+
+    // APIにて人口構成取得
+    await axios.get(baseUrl + `api/v1/population/composition/perYear?prefCode=` + this.prefCode + `&cityCode=-`, {
+      headers: { 'X-API-KEY': apiKey }
+    }).then(response => {
+      for (let i = 0; i < response.data.result.data[0].data.length; i++) {
+        this.people.push(response.data.result.data[0].data[i].value)
+      }
+    }
+    )
+
+    // グラフ描画
+    this.renderChart({
+      labels: ['1980', '1985', '1990', '1995', '2000', '2005', '2010', '2015', '2020', '2025', '2030', '2035', '2040', '2045'],
+      datasets: [
+        {
+          label: this.prefName,
+          backgroundColor: '#f87979',
+          data: this.people
+        }
+      ]
+    })
   }
 }
 </script>

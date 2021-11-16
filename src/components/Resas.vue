@@ -35,6 +35,7 @@ export default {
     }
   },
   mounted () {
+    // APIにて都道府県一覧取得
     axios.get(baseUrl + `api/v1/prefectures`, {
       headers: { 'X-API-KEY': apiKey }
     }).then(response => {
