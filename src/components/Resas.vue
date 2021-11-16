@@ -1,37 +1,33 @@
-
 <template>
   <div class="main">
     <!-- 都道府県一覧 -->
     <div class="prefectures-wrapper">
       <ul class="prefectures">
         <li v-for="pref in prefectures" :key="pref.prefCode">
-          <input type="checkbox" :value="pref.prefCode" v-model="checkedPref">
-          <label for="pref.prefCode">{{ pref.prefName }}</label>
+          <input
+            type="checkbox"
+            :value="pref.prefCode"
+            v-model="checkedPrefs"
+            @click="drawChart(pref.prefCode, pref.prefName)"
+          />
+          <label>{{ pref.prefName }}</label>
         </li>
       </ul>
-    </div>
-
-    <!-- グラフ -->
-    <div class="chart">
-      <Chart class="chart"></Chart>
     </div>
   </div>
 </template>
 
 <script>
 import { baseUrl, apiKey } from '@/assets/config.js'
-import Chart from './Chart'
 import axios from 'axios'
 
 export default {
   name: 'Resas',
-  components: {
-    Chart
-  },
   data () {
     return {
       prefectures: null,
-      checkedPref: []
+      checkedPrefs: [],
+      people: []
     }
   },
   mounted () {
@@ -45,6 +41,24 @@ export default {
       this.prefectures = response.data.result
     }
     )
+  },
+  methods: {
+    async drawChart (prefCode, prefName) {
+      // 人口の初期化
+      this.people = []
+      // APIにて人口構成取得
+      await axios.get(baseUrl + `api/v1/population/composition/perYear?prefCode=` + prefCode + `&cityCode=-`, {
+        headers: { 'X-API-KEY': apiKey }
+      }).then(response => {
+        for (let i = 0; i < response.data.result.data[0].data.length; i++) {
+          this.people.push(response.data.result.data[0].data[i].value)
+        }
+      }
+      )
+
+      // グラフの描画
+      this.$emit('drawChart', prefCode, prefName, this.people)
+    }
   }
 }
 </script>

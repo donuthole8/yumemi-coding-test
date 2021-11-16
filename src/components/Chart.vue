@@ -1,40 +1,65 @@
+<template>
+  <div class="main-wrapper">
+    <h3>都道府県一覧</h3>
+    <div>
+      <Resas @drawChart="drawChart"></Resas>
+    </div>
+
+    <div>
+      <HighCharts :options="chartOptions"></HighCharts>
+    </div>
+  </div>
+</template>
+
 <script>
-import { baseUrl, apiKey } from '@/assets/config.js'
-import { Line } from 'vue-chartjs'
-import axios from 'axios'
+import { Chart } from 'highcharts-vue'
+import Resas from './Resas'
 
 export default {
-  extends: Line,
+  extends: Chart,
+  name: 'Chart',
+  components: {
+    HighCharts: Chart,
+    Resas: Resas
+  },
   data () {
     return {
-      prefCode: 22,
-      people: []
-    }
-  },
-  async mounted () {
-    // 都道府県名取得
-
-    // APIにて人口構成取得
-    await axios.get(baseUrl + `api/v1/population/composition/perYear?prefCode=` + this.prefCode + `&cityCode=-`, {
-      headers: { 'X-API-KEY': apiKey }
-    }).then(response => {
-      for (let i = 0; i < response.data.result.data[0].data.length; i++) {
-        this.people.push(response.data.result.data[0].data[i].value)
+      people: [],
+      chartOptions: {
+        title: {
+          text: '総人口推移グラフ'
+        },
+        subtitle: {
+          text: 'Total population transition graph'
+        },
+        xAxis: {
+          title: {
+            text: '年度'
+          },
+          categories: ['1960', '1965', '1970', '1975', '1980', '1985', '1990', '1995', '2000', '2005', '2010', '2015', '2020', '2025', '2030', '2035', '2040', '2045']
+        },
+        yAisx: {
+          title: {
+            text: '人口'
+          }
+        },
+        series: [{
+        }]
       }
     }
-    )
+  },
+  methods: {
+    drawChart (prefCode, prefName, people) {
+      // 人口取得
+      this.people = people
 
-    // グラフ描画
-    this.renderChart({
-      labels: ['1980', '1985', '1990', '1995', '2000', '2005', '2010', '2015', '2020', '2025', '2030', '2035', '2040', '2045'],
-      datasets: [
-        {
-          label: this.prefName,
-          backgroundColor: '#f87979',
-          data: this.people
-        }
-      ]
-    })
+      // グラフへ追加
+      this.chartOptions.series.push({
+        prefCode: prefCode,
+        name: prefName,
+        data: people
+      })
+    }
   }
 }
 </script>
