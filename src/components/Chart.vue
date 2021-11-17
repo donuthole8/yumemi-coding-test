@@ -2,7 +2,7 @@
   <div class="main-wrapper">
     <h3>都道府県一覧</h3>
     <div>
-      <Resas @drawChart="drawChart"></Resas>
+      <Resas @drawChart="drawChart" @deleteChart="deleteChart"></Resas>
     </div>
 
     <div>
@@ -24,8 +24,10 @@ export default {
   },
   data () {
     return {
-      people: [],
       chartOptions: {
+        chart: {
+          type: 'line'
+        },
         title: {
           text: '総人口推移グラフ'
         },
@@ -50,15 +52,17 @@ export default {
   },
   methods: {
     drawChart (prefCode, prefName, people) {
-      // 人口取得
-      this.people = people
-
       // グラフへ追加
       this.chartOptions.series.push({
         prefCode: prefCode,
         name: prefName,
         data: people
       })
+    },
+    deleteChart (prefCode) {
+      // グラフから削除
+      console.log(prefCode)
+      this.chartOptions.series = this.chartOptions.series.filter(val => val.prefCode !== prefCode)
     }
   }
 }

@@ -7,6 +7,7 @@
           <input
             type="checkbox"
             :value="pref.prefCode"
+            :checked="pref.isChecked"
             v-model="checkedPrefs"
             @click="drawChart(pref.prefCode, pref.prefName)"
           />
@@ -36,7 +37,9 @@ export default {
       headers: { 'X-API-KEY': apiKey }
     }).then(response => {
       this.prefectures = {
-        response
+        prefCode: response.prefCode,
+        prefName: response.prefName,
+        isChecked: false
       }
       this.prefectures = response.data.result
     }
@@ -46,18 +49,27 @@ export default {
     async drawChart (prefCode, prefName) {
       // 人口の初期化
       this.people = []
-      // APIにて人口構成取得
-      await axios.get(baseUrl + `api/v1/population/composition/perYear?prefCode=` + prefCode + `&cityCode=-`, {
-        headers: { 'X-API-KEY': apiKey }
-      }).then(response => {
-        for (let i = 0; i < response.data.result.data[0].data.length; i++) {
-          this.people.push(response.data.result.data[0].data[i].value)
+      // グラフが存在しているか判別
+      if (!this.prefectures[prefCode - 1].isChecked) {
+        // APIにて人口構成取得
+        await axios.get(baseUrl + `api/v1/population/composition/perYear?prefCode=` + prefCode + `&cityCode=-`, {
+          headers: { 'X-API-KEY': apiKey }
+        }).then(response => {
+          for (let i = 0; i < response.data.result.data[0].data.length; i++) {
+            this.people.push(response.data.result.data[0].data[i].value)
+          }
         }
-      }
-      )
+        )
 
-      // グラフの描画
-      this.$emit('drawChart', prefCode, prefName, this.people)
+        // チェックボックス
+        this.prefectures[prefCode - 1].isChecked = true
+
+        // グラフの描画
+        this.$emit('drawChart', prefCode, prefName, this.people)
+      } else {
+        // グラフの削除
+        this.$emit('deleteChart', prefCode)
+      }
     }
   }
 }
