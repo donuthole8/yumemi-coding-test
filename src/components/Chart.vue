@@ -1,65 +1,89 @@
+<template>
+  <div class="main-wrapper">
+    <h3>都道府県一覧</h3>
+    <div>
+      <Resas @drawChart="drawChart" @deleteChart="deleteChart"></Resas>
+    </div>
+
+    <div>
+      <HighCharts :options="chartOptions"></HighCharts>
+    </div>
+  </div>
+</template>
+
 <script>
-import { Bar } from 'vue-chartjs'
+import { Chart } from "highcharts-vue";
+import Resas from "./Resas";
 
 export default {
-  extends: Bar,
-  name: 'Chart',
-  data () {
-    return {
-      data: {
-        labels: ['January', 'February', 'March', 'April', 'May', 'June'],
-        datasets: [
-          {
-            label: 'Bar Dataset',
-            data: [10, 20, 30, 40, 50, 30],
-            backgroundColor: [
-              'rgba(255, 99, 132, 0.2)',
-              'rgba(54, 162, 235, 0.2)',
-              'rgba(255, 206, 86, 0.2)',
-              'rgba(75, 192, 192, 0.2)',
-              'rgba(153, 102, 255, 0.2)',
-              'rgba(255, 159, 64, 0.2)'
-            ],
-            borderColor: [
-              'rgba(255, 99, 132, 1)',
-              'rgba(54, 162, 235, 1)',
-              'rgba(255, 206, 86, 1)',
-              'rgba(75, 192, 192, 1)',
-              'rgba(153, 102, 255, 1)',
-              'rgba(255, 159, 64, 1)'
-            ],
-            borderWidth: 1
-          },
-          {
-            label: 'Line Dataset',
-            data: [10, 50, 20, 30, 30, 40],
-            borderColor: '#CFD8DC',
-            fill: false,
-            type: 'line',
-            lineTension: 0.3
-          }
-        ]
-      },
-      options: {
-        scales: {
-          xAxes: [{
-            scaleLabel: {
-              display: true,
-              labelString: 'Month'
-            }
-          }],
-          yAxes: [{
-            ticks: {
-              beginAtZero: true,
-              stepSize: 10
-            }
-          }]
-        }
-      }
-    }
+  extends: Chart,
+  name: "Chart",
+  components: {
+    HighCharts: Chart,
+    Resas: Resas
   },
-  mounted () {
-    this.renderChart(this.data, this.options)
+  data() {
+    return {
+      chartOptions: {
+        chart: {
+          type: "line"
+        },
+        title: {
+          text: "総人口推移グラフ"
+        },
+        subtitle: {
+          text: "Total population transition graph"
+        },
+        xAxis: {
+          title: {
+            text: "年度"
+          },
+          categories: [
+            "1960",
+            "1965",
+            "1970",
+            "1975",
+            "1980",
+            "1985",
+            "1990",
+            "1995",
+            "2000",
+            "2005",
+            "2010",
+            "2015",
+            "2020",
+            "2025",
+            "2030",
+            "2035",
+            "2040",
+            "2045"
+          ]
+        },
+        yAisx: {
+          title: {
+            text: "人口"
+          }
+        },
+        series: [{}]
+      }
+    };
+  },
+  methods: {
+    drawChart(prefCode, prefName, people) {
+      // グラフへ追加
+      this.chartOptions.series.push({
+        prefCode: prefCode,
+        name: prefName,
+        data: people
+      });
+    },
+    deleteChart(prefCode) {
+      // グラフから削除
+      console.log(prefCode);
+      this.chartOptions.series = this.chartOptions.series.filter(
+        val => val.prefCode !== prefCode
+      );
+    }
   }
-}
+};
 </script>
