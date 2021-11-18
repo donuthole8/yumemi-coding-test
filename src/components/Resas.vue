@@ -19,64 +19,77 @@
 </template>
 
 <script>
-import { baseUrl, apiKey } from '@/assets/config.js'
-import axios from 'axios'
+import { baseUrl, apiKey } from "@/assets/config.js";
+import axios from "axios";
 
 export default {
-  name: 'Resas',
-  data () {
+  name: "Resas",
+  data() {
     return {
       prefectures: null,
       checkedPrefs: [],
       people: []
-    }
+    };
   },
-  mounted () {
+  mounted() {
+    console.log(apiKey);
+
     // APIにて都道府県一覧取得
-    axios.get(baseUrl + `api/v1/prefectures`, {
-      headers: { 'X-API-KEY': apiKey }
-    }).then(response => {
-      this.prefectures = {
-        prefCode: response.prefCode,
-        prefName: response.prefName,
-        isChecked: false
-      }
-      this.prefectures = response.data.result
-    }
-    )
+    axios
+      .get(baseUrl + `api/v1/prefectures`, {
+        headers: { "X-API-KEY": apiKey }
+      })
+      .then(response => {
+        this.prefectures = {
+          prefCode: response.prefCode,
+          prefName: response.prefName,
+          isChecked: false
+        };
+        this.prefectures = response.data.result;
+      });
   },
   methods: {
-    async drawChart (prefCode, prefName) {
+    async drawChart(prefCode, prefName) {
       // 人口の初期化
-      this.people = []
+      this.people = [];
+
       // グラフが存在しているか判別
       if (!this.prefectures[prefCode - 1].isChecked) {
         // APIにて人口構成取得
-        await axios.get(baseUrl + `api/v1/population/composition/perYear?prefCode=` + prefCode + `&cityCode=-`, {
-          headers: { 'X-API-KEY': apiKey }
-        }).then(response => {
-          for (let i = 0; i < response.data.result.data[0].data.length; i++) {
-            this.people.push(response.data.result.data[0].data[i].value)
-          }
-        }
-        )
+        await axios
+          .get(
+            baseUrl +
+              `api/v1/population/composition/perYear?prefCode=` +
+              prefCode +
+              `&cityCode=-`,
+            {
+              headers: { "X-API-KEY": apiKey }
+            }
+          )
+          .then(response => {
+            for (let i = 0; i < response.data.result.data[0].data.length; i++) {
+              this.people.push(response.data.result.data[0].data[i].value);
+            }
+          });
 
-        // チェックボックス
-        this.prefectures[prefCode - 1].isChecked = true
-
+        // チェックボックスのチェック
+        this.prefectures[prefCode - 1].isChecked = true;
         // グラフの描画
-        this.$emit('drawChart', prefCode, prefName, this.people)
+        this.$emit("drawChart", prefCode, prefName, this.people);
       } else {
+        // チェックボックスのチェック
+        this.prefectures[prefCode - 1].isChecked = false;
         // グラフの削除
-        this.$emit('deleteChart', prefCode)
+        this.$emit("deleteChart", prefCode);
       }
     }
   }
-}
+};
 </script>
 
 <style scoped>
-h1, h2 {
+h1,
+h2 {
   font-weight: normal;
 }
 ul {
