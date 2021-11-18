@@ -1,5 +1,15 @@
 # yumemi
 
+## URL
+> https://serene-tesla-534547.netlify.app/#/
+
+## 概要
+> 各都道府県のチェックボックスをクリックすると年代別で人口を表示
+> RESASのAPIを使用
+> highchartsを使用
+> netlifyにてホスティング
+
+
 > A Vue.js project
 
 ## Build Setup
